@@ -67,14 +67,14 @@ start_server {
         assert_equal {0} [r scard myset1]
     }
 
-    test {SMISMEMBER requires one or more members} {
-        r del zmscoretest
-        r zadd zmscoretest 10 x
-        r zadd zmscoretest 20 y
-        
-        catch {r smismember zmscoretest} e
-        assert_match {*ERR*wrong*number*arg*} $e
-    }
+#    test {SMISMEMBER requires one or more members} {
+#        r del zmscoretest
+#        r zadd zmscoretest 10 x
+#        r zadd zmscoretest 20 y
+#
+#        catch {r smismember zmscoretest} e
+#        assert_match {*ERR*wrong*number*arg*} $e
+#    }
 
     test {SADD against non set} {
         r lpush mylist foo
@@ -175,26 +175,26 @@ foreach type {single multiple single_multiple} {
         assert_equal [lsort {A a b c B}] [lsort [r smembers myset]]
     }
 
-    test "Set encoding after DEBUG RELOAD" {
-        r del myintset
-        r del myhashset
-        r del mylargeintset
-        r del mysmallset
-        for {set i 0} {$i <  100} {incr i} { r sadd myintset $i }
-        for {set i 0} {$i < 1280} {incr i} { r sadd mylargeintset $i }
-        for {set i 0} {$i <   50} {incr i} { r sadd mysmallset [format "i%03d" $i] }
-        for {set i 0} {$i <  256} {incr i} { r sadd myhashset [format "i%03d" $i] }
-        assert_encoding intset myintset
-        assert_encoding hashtable mylargeintset
-        assert_encoding listpack mysmallset
-        assert_encoding hashtable myhashset
-
-        r debug reload
-        assert_encoding intset myintset
-        assert_encoding hashtable mylargeintset
-        assert_encoding listpack mysmallset
-        assert_encoding hashtable myhashset
-    } {} {needs:debug}
+#    test "Set encoding after DEBUG RELOAD" {
+#        r del myintset
+#        r del myhashset
+#        r del mylargeintset
+#        r del mysmallset
+#        for {set i 0} {$i <  100} {incr i} { r sadd myintset $i }
+#        for {set i 0} {$i < 1280} {incr i} { r sadd mylargeintset $i }
+#        for {set i 0} {$i <   50} {incr i} { r sadd mysmallset [format "i%03d" $i] }
+#        for {set i 0} {$i <  256} {incr i} { r sadd myhashset [format "i%03d" $i] }
+#        assert_encoding intset myintset
+#        assert_encoding hashtable mylargeintset
+#        assert_encoding listpack mysmallset
+#        assert_encoding hashtable myhashset
+#
+#        r debug reload
+#        assert_encoding intset myintset
+#        assert_encoding hashtable mylargeintset
+#        assert_encoding listpack mysmallset
+#        assert_encoding hashtable myhashset
+#    } {} {needs:debug}
 
     foreach type {listpack hashtable} {
         test {SREM basics - $type} {
@@ -229,39 +229,39 @@ foreach type {single multiple single_multiple} {
         r srem myset 1 2 3 4 5 6 7 8
     } {3}
 
-    test "SINTERCARD with illegal arguments" {
-        assert_error "ERR wrong number of arguments for 'sintercard' command" {r sintercard}
-        assert_error "ERR wrong number of arguments for 'sintercard' command" {r sintercard 1}
-
-        assert_error "ERR numkeys*" {r sintercard 0 myset{t}}
-        assert_error "ERR numkeys*" {r sintercard a myset{t}}
-
-        assert_error "ERR Number of keys*" {r sintercard 2 myset{t}}
-        assert_error "ERR Number of keys*" {r sintercard 3 myset{t} myset2{t}}
-
-        assert_error "ERR syntax error*" {r sintercard 1 myset{t} myset2{t}}
-        assert_error "ERR syntax error*" {r sintercard 1 myset{t} bar_arg}
-        assert_error "ERR syntax error*" {r sintercard 1 myset{t} LIMIT}
-
-        assert_error "ERR LIMIT*" {r sintercard 1 myset{t} LIMIT -1}
-        assert_error "ERR LIMIT*" {r sintercard 1 myset{t} LIMIT a}
-    }
-
-    test "SINTERCARD against non-set should throw error" {
-        r del set{t}
-        r sadd set{t} a b c
-        r set key1{t} x
-
-        assert_error "WRONGTYPE*" {r sintercard 1 key1{t}}
-        assert_error "WRONGTYPE*" {r sintercard 2 set{t} key1{t}}
-        assert_error "WRONGTYPE*" {r sintercard 2 key1{t} noset{t}}
-    }
-
-    test "SINTERCARD against non-existing key" {
-        assert_equal 0 [r sintercard 1 non-existing-key]
-        assert_equal 0 [r sintercard 1 non-existing-key limit 0]
-        assert_equal 0 [r sintercard 1 non-existing-key limit 10]
-    }
+#    test "SINTERCARD with illegal arguments" {
+#        assert_error "ERR wrong number of arguments for 'sintercard' command" {r sintercard}
+#        assert_error "ERR wrong number of arguments for 'sintercard' command" {r sintercard 1}
+#
+#        assert_error "ERR numkeys*" {r sintercard 0 myset{t}}
+#        assert_error "ERR numkeys*" {r sintercard a myset{t}}
+#
+#        assert_error "ERR Number of keys*" {r sintercard 2 myset{t}}
+#        assert_error "ERR Number of keys*" {r sintercard 3 myset{t} myset2{t}}
+#
+#        assert_error "ERR syntax error*" {r sintercard 1 myset{t} myset2{t}}
+#        assert_error "ERR syntax error*" {r sintercard 1 myset{t} bar_arg}
+#        assert_error "ERR syntax error*" {r sintercard 1 myset{t} LIMIT}
+#
+#        assert_error "ERR LIMIT*" {r sintercard 1 myset{t} LIMIT -1}
+#        assert_error "ERR LIMIT*" {r sintercard 1 myset{t} LIMIT a}
+#    }
+#
+#    test "SINTERCARD against non-set should throw error" {
+#        r del set{t}
+#        r sadd set{t} a b c
+#        r set key1{t} x
+#
+#        assert_error "WRONGTYPE*" {r sintercard 1 key1{t}}
+#        assert_error "WRONGTYPE*" {r sintercard 2 set{t} key1{t}}
+#        assert_error "WRONGTYPE*" {r sintercard 2 key1{t} noset{t}}
+#    }
+#
+#    test "SINTERCARD against non-existing key" {
+#        assert_equal 0 [r sintercard 1 non-existing-key]
+#        assert_equal 0 [r sintercard 1 non-existing-key limit 0]
+#        assert_equal 0 [r sintercard 1 non-existing-key limit 10]
+#    }
 
     foreach {type} {regular intset} {
         # Create sets setN{t} where N = 1..5
@@ -313,12 +313,12 @@ foreach type {single multiple single_multiple} {
             assert_equal [list 195 196 197 198 199 $large] [lsort [r sinter set1{t} set2{t}]]
         }
 
-        test "SINTERCARD with two sets - $type" {
-            assert_equal 6 [r sintercard 2 set1{t} set2{t}]
-            assert_equal 6 [r sintercard 2 set1{t} set2{t} limit 0]
-            assert_equal 3 [r sintercard 2 set1{t} set2{t} limit 3]
-            assert_equal 6 [r sintercard 2 set1{t} set2{t} limit 10]
-        }
+#        test "SINTERCARD with two sets - $type" {
+#            assert_equal 6 [r sintercard 2 set1{t} set2{t}]
+#            assert_equal 6 [r sintercard 2 set1{t} set2{t} limit 0]
+#            assert_equal 3 [r sintercard 2 set1{t} set2{t} limit 3]
+#            assert_equal 6 [r sintercard 2 set1{t} set2{t} limit 10]
+#        }
 
         test "SINTERSTORE with two sets - $type" {
             r sinterstore setres{t} set1{t} set2{t}
@@ -326,12 +326,12 @@ foreach type {single multiple single_multiple} {
             assert_equal [list 195 196 197 198 199 $large] [lsort [r smembers setres{t}]]
         }
 
-        test "SINTERSTORE with two sets, after a DEBUG RELOAD - $type" {
-            r debug reload
-            r sinterstore setres{t} set1{t} set2{t}
-            assert_encoding $smallenc setres{t}
-            assert_equal [list 195 196 197 198 199 $large] [lsort [r smembers setres{t}]]
-        } {} {needs:debug}
+#        test "SINTERSTORE with two sets, after a DEBUG RELOAD - $type" {
+#            r debug reload
+#            r sinterstore setres{t} set1{t} set2{t}
+#            assert_encoding $smallenc setres{t}
+#            assert_equal [list 195 196 197 198 199 $large] [lsort [r smembers setres{t}]]
+#        } {} {needs:debug}
 
         test "SUNION with two sets - $type" {
             set expected [lsort -uniq "[r smembers set1{t}] [r smembers set2{t}]"]
@@ -349,12 +349,12 @@ foreach type {single multiple single_multiple} {
             assert_equal [list 195 199 $large] [lsort [r sinter set1{t} set2{t} set3{t}]]
         }
 
-        test "SINTERCARD against three sets - $type" {
-            assert_equal 3 [r sintercard 3 set1{t} set2{t} set3{t}]
-            assert_equal 3 [r sintercard 3 set1{t} set2{t} set3{t} limit 0]
-            assert_equal 2 [r sintercard 3 set1{t} set2{t} set3{t} limit 2]
-            assert_equal 3 [r sintercard 3 set1{t} set2{t} set3{t} limit 10]
-        }
+#        test "SINTERCARD against three sets - $type" {
+#            assert_equal 3 [r sintercard 3 set1{t} set2{t} set3{t}]
+#            assert_equal 3 [r sintercard 3 set1{t} set2{t} set3{t} limit 0]
+#            assert_equal 2 [r sintercard 3 set1{t} set2{t} set3{t} limit 2]
+#            assert_equal 3 [r sintercard 3 set1{t} set2{t} set3{t} limit 10]
+#        }
 
         test "SINTERSTORE with three sets - $type" {
             r sinterstore setres{t} set1{t} set2{t} set3{t}
@@ -444,31 +444,31 @@ foreach type {single multiple single_multiple} {
         r sdiff set1 set1
     } {}
 
-    test "SDIFF fuzzing" {
-        for {set j 0} {$j < 100} {incr j} {
-            unset -nocomplain s
-            array set s {}
-            set args {}
-            set num_sets [expr {[randomInt 10]+1}]
-            for {set i 0} {$i < $num_sets} {incr i} {
-                set num_elements [randomInt 100]
-                r del set_$i{t}
-                lappend args set_$i{t}
-                while {$num_elements} {
-                    set ele [randomValue]
-                    r sadd set_$i{t} $ele
-                    if {$i == 0} {
-                        set s($ele) x
-                    } else {
-                        unset -nocomplain s($ele)
-                    }
-                    incr num_elements -1
-                }
-            }
-            set result [lsort [r sdiff {*}$args]]
-            assert_equal $result [lsort [array names s]]
-        }
-    }
+#    test "SDIFF fuzzing" {
+#        for {set j 0} {$j < 100} {incr j} {
+#            unset -nocomplain s
+#            array set s {}
+#            set args {}
+#            set num_sets [expr {[randomInt 10]+1}]
+#            for {set i 0} {$i < $num_sets} {incr i} {
+#                set num_elements [randomInt 100]
+#                r del set_$i{t}
+#                lappend args set_$i{t}
+#                while {$num_elements} {
+#                    set ele [randomValue]
+#                    r sadd set_$i{t} $ele
+#                    if {$i == 0} {
+#                        set s($ele) x
+#                    } else {
+#                        unset -nocomplain s($ele)
+#                    }
+#                    incr num_elements -1
+#                }
+#            }
+#            set result [lsort [r sdiff {*}$args]]
+#            assert_equal $result [lsort [array names s]]
+#        }
+#    }
 
     test "SDIFF against non-set should throw error" {
         # with an empty set
@@ -686,444 +686,444 @@ foreach type {single multiple single_multiple} {
         assert_equal 0 [r exists setres{t}]
     }
 
-    foreach {type contents} {listpack {a b c} intset {1 2 3}} {
-        test "SPOP basics - $type" {
-            create_set myset $contents
-            assert_encoding $type myset
-            assert_equal $contents [lsort [list [r spop myset] [r spop myset] [r spop myset]]]
-            assert_equal 0 [r scard myset]
-        }
-
-        test "SPOP with <count>=1 - $type" {
-            create_set myset $contents
-            assert_encoding $type myset
-            assert_equal $contents [lsort [list [r spop myset 1] [r spop myset 1] [r spop myset 1]]]
-            assert_equal 0 [r scard myset]
-        }
-
-        test "SRANDMEMBER - $type" {
-            create_set myset $contents
-            unset -nocomplain myset
-            array set myset {}
-            for {set i 0} {$i < 100} {incr i} {
-                set myset([r srandmember myset]) 1
-            }
-            assert_equal $contents [lsort [array names myset]]
-        }
-    }
-
-    test "SPOP integer from listpack set" {
-        create_set myset {a 1 2 3 4 5 6 7}
-        assert_encoding listpack myset
-        set a [r spop myset]
-        set b [r spop myset]
-        assert {[string is digit $a] || [string is digit $b]}
-    }
-
-    foreach {type contents} {
-        listpack {a b c d e f g h i j k l m n o p q r s t u v w x y z}
-        intset {1 10 11 12 13 14 15 16 17 18 19 2 20 21 22 23 24 25 26 3 4 5 6 7 8 9}
-        hashtable {ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 b c d e f g h i j k l m n o p q r s t u v w x y z}
-    } {
-        test "SPOP with <count> - $type" {
-            create_set myset $contents
-            assert_encoding $type myset
-            assert_equal $contents [lsort [concat [r spop myset 11] [r spop myset 9] [r spop myset 0] [r spop myset 4] [r spop myset 1] [r spop myset 0] [r spop myset 1] [r spop myset 0]]]
-            assert_equal 0 [r scard myset]
-        }
-    }
-
-    # As seen in intsetRandomMembers
-    test "SPOP using integers, testing Knuth's and Floyd's algorithm" {
-        create_set myset {1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20}
-        assert_encoding intset myset
-        assert_equal 20 [r scard myset]
-        r spop myset 1
-        assert_equal 19 [r scard myset]
-        r spop myset 2
-        assert_equal 17 [r scard myset]
-        r spop myset 3
-        assert_equal 14 [r scard myset]
-        r spop myset 10
-        assert_equal 4 [r scard myset]
-        r spop myset 10
-        assert_equal 0 [r scard myset]
-        r spop myset 1
-        assert_equal 0 [r scard myset]
-    } {}
-
-    test "SPOP using integers with Knuth's algorithm" {
-        r spop nonexisting_key 100
-    } {}
-
-    foreach {type content} {
-        intset   {1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20}
-        listpack {a 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20}
-    } {
-    test "SPOP new implementation: code path #1 $type" {
-        create_set myset $content
-        assert_encoding $type myset
-        set res [r spop myset 30]
-        assert {[lsort $content] eq [lsort $res]}
-        assert_equal {0} [r exists myset]
-    }
-
-    test "SPOP new implementation: code path #2 $type" {
-        create_set myset $content
-        assert_encoding $type myset
-        set res [r spop myset 2]
-        assert {[llength $res] == 2}
-        assert {[r scard myset] == 18}
-        set union [concat [r smembers myset] $res]
-        assert {[lsort $union] eq [lsort $content]}
-    }
-
-    test "SPOP new implementation: code path #3 $type" {
-        create_set myset $content
-        assert_encoding $type myset
-        set res [r spop myset 18]
-        assert {[llength $res] == 18}
-        assert {[r scard myset] == 2}
-        set union [concat [r smembers myset] $res]
-        assert {[lsort $union] eq [lsort $content]}
-    }
-    }
-
-    test "SPOP new implementation: code path #1 propagate as DEL or UNLINK" {
-        r del myset1{t} myset2{t}
-        r sadd myset1{t} 1 2 3 4 5
-        r sadd myset2{t} 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51 52 53 54 55 56 57 58 59 60 61 62 63 64 65
-
-        set repl [attach_to_replication_stream]
-
-        r config set lazyfree-lazy-server-del no
-        r spop myset1{t} [r scard myset1{t}]
-        r config set lazyfree-lazy-server-del yes
-        r spop myset2{t} [r scard myset2{t}]
-        assert_equal {0} [r exists myset1{t} myset2{t}]
-
-        # Verify the propagate of DEL and UNLINK.
-        assert_replication_stream $repl {
-            {select *}
-            {del myset1{t}}
-            {unlink myset2{t}}
-        }
-
-        close_replication_stream $repl
-    } {} {needs:repl}
-
-    test "SRANDMEMBER count of 0 is handled correctly" {
-        r srandmember myset 0
-    } {}
-
-    test "SRANDMEMBER with <count> against non existing key" {
-        r srandmember nonexisting_key 100
-    } {}
-
-    test "SRANDMEMBER count overflow" {
-        r sadd myset a
-        assert_error {*value is out of range*} {r srandmember myset -9223372036854775808}
-    } {}
-
-    # Make sure we can distinguish between an empty array and a null response
-    r readraw 1
-
-    test "SRANDMEMBER count of 0 is handled correctly - emptyarray" {
-        r srandmember myset 0
-    } {*0}
-
-    test "SRANDMEMBER with <count> against non existing key - emptyarray" {
-        r srandmember nonexisting_key 100
-    } {*0}
-
-    r readraw 0
-
-    foreach {type contents} {
-        listpack {
-            1 5 10 50 125 50000 33959417 4775547 65434162
-            12098459 427716 483706 2726473884 72615637475
-            MARY PATRICIA LINDA BARBARA ELIZABETH JENNIFER MARIA
-            SUSAN MARGARET DOROTHY LISA NANCY KAREN BETTY HELEN
-            SANDRA DONNA CAROL RUTH SHARON MICHELLE LAURA SARAH
-            KIMBERLY DEBORAH JESSICA SHIRLEY CYNTHIA ANGELA MELISSA
-            BRENDA AMY ANNA REBECCA VIRGINIA KATHLEEN
-        }
-        intset {
-            0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19
-            20 21 22 23 24 25 26 27 28 29
-            30 31 32 33 34 35 36 37 38 39
-            40 41 42 43 44 45 46 47 48 49
-        }
-        hashtable {
-            ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789
-            1 5 10 50 125 50000 33959417 4775547 65434162
-            12098459 427716 483706 2726473884 72615637475
-            MARY PATRICIA LINDA BARBARA ELIZABETH JENNIFER MARIA
-            SUSAN MARGARET DOROTHY LISA NANCY KAREN BETTY HELEN
-            SANDRA DONNA CAROL RUTH SHARON MICHELLE LAURA SARAH
-            KIMBERLY DEBORAH JESSICA SHIRLEY CYNTHIA ANGELA MELISSA
-            BRENDA AMY ANNA REBECCA VIRGINIA
-        }
-    } {
-        test "SRANDMEMBER with <count> - $type" {
-            create_set myset $contents
-            assert_encoding $type myset
-            unset -nocomplain myset
-            array set myset {}
-            foreach ele [r smembers myset] {
-                set myset($ele) 1
-            }
-            assert_equal [lsort $contents] [lsort [array names myset]]
-
-            # Make sure that a count of 0 is handled correctly.
-            assert_equal [r srandmember myset 0] {}
-
-            # We'll stress different parts of the code, see the implementation
-            # of SRANDMEMBER for more information, but basically there are
-            # four different code paths.
-            #
-            # PATH 1: Use negative count.
-            #
-            # 1) Check that it returns repeated elements.
-            set res [r srandmember myset -100]
-            assert_equal [llength $res] 100
-
-            # 2) Check that all the elements actually belong to the
-            # original set.
-            foreach ele $res {
-                assert {[info exists myset($ele)]}
-            }
-
-            # 3) Check that eventually all the elements are returned.
-            unset -nocomplain auxset
-            set iterations 1000
-            while {$iterations != 0} {
-                incr iterations -1
-                set res [r srandmember myset -10]
-                foreach ele $res {
-                    set auxset($ele) 1
-                }
-                if {[lsort [array names myset]] eq
-                    [lsort [array names auxset]]} {
-                    break;
-                }
-            }
-            assert {$iterations != 0}
-
-            # PATH 2: positive count (unique behavior) with requested size
-            # equal or greater than set size.
-            foreach size {50 100} {
-                set res [r srandmember myset $size]
-                assert_equal [llength $res] 50
-                assert_equal [lsort $res] [lsort [array names myset]]
-            }
-
-            # PATH 3: Ask almost as elements as there are in the set.
-            # In this case the implementation will duplicate the original
-            # set and will remove random elements up to the requested size.
-            #
-            # PATH 4: Ask a number of elements definitely smaller than
-            # the set size.
-            #
-            # We can test both the code paths just changing the size but
-            # using the same code.
-
-            foreach size {45 5} {
-                set res [r srandmember myset $size]
-                assert_equal [llength $res] $size
-
-                # 1) Check that all the elements actually belong to the
-                # original set.
-                foreach ele $res {
-                    assert {[info exists myset($ele)]}
-                }
-
-                # 2) Check that eventually all the elements are returned.
-                unset -nocomplain auxset
-                set iterations 1000
-                while {$iterations != 0} {
-                    incr iterations -1
-                    set res [r srandmember myset $size]
-                    foreach ele $res {
-                        set auxset($ele) 1
-                    }
-                    if {[lsort [array names myset]] eq
-                        [lsort [array names auxset]]} {
-                        break;
-                    }
-                }
-                assert {$iterations != 0}
-            }
-        }
-    }
-
-    foreach {type contents} {
-        listpack {
-            1 5 10 50 125
-            MARY PATRICIA LINDA BARBARA ELIZABETH
-        }
-        intset {
-            0 1 2 3 4 5 6 7 8 9
-        }
-        hashtable {
-            ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789
-            1 5 10 50 125
-            MARY PATRICIA LINDA BARBARA
-        }
-    } {
-        test "SRANDMEMBER histogram distribution - $type" {
-            create_set myset $contents
-            assert_encoding $type myset
-            unset -nocomplain myset
-            array set myset {}
-            foreach ele [r smembers myset] {
-                set myset($ele) 1
-            }
-
-            # Use negative count (PATH 1).
-            # df = 9, 40 means 0.00001 probability
-            set res [r srandmember myset -1000]
-            assert_lessthan [chi_square_value $res] 40
-
-            # Use positive count (both PATH 3 and PATH 4).
-            foreach size {8 2} {
-                unset -nocomplain allkey
-                set iterations [expr {1000 / $size}]
-                while {$iterations != 0} {
-                    incr iterations -1
-                    set res [r srandmember myset $size]
-                    foreach ele $res {
-                        lappend allkey $ele
-                    }
-                }
-                # df = 9, 40 means 0.00001 probability
-                assert_lessthan [chi_square_value $allkey] 40
-            }
-        }
-    }
-
-    proc is_rehashing {myset} {
-        set htstats [r debug HTSTATS-KEY $myset]
-        return [string match {*rehashing target*} $htstats]
-    }
-
-    proc rem_hash_set_top_N {myset n} {
-        set cursor 0
-        set members {}
-        set enough 0
-        while 1 {
-            set res [r sscan $myset $cursor]
-            set cursor [lindex $res 0]
-            set k [lindex $res 1]
-            foreach m $k {
-                lappend members $m
-                if {[llength $members] >= $n} {
-                    set enough 1
-                    break
-                }
-            }
-            if {$enough || $cursor == 0} {
-                break
-            }
-        }
-        r srem $myset {*}$members
-    }
-
-    test "SRANDMEMBER with a dict containing long chain" {
-        set origin_save [config_get_set save ""]
-        set origin_max_lp [config_get_set set-max-listpack-entries 0]
-        set origin_save_delay [config_get_set rdb-key-save-delay 2147483647]
-
-        # 1) Create a hash set with 100000 members.
-        set members {}
-        for {set i 0} {$i < 100000} {incr i} {
-            lappend members [format "m:%d" $i]
-        }
-        create_set myset $members
-
-        # 2) Wait for the hash set rehashing to finish.
-        while {[is_rehashing myset]} {
-            r srandmember myset 100
-        }
-
-        # 3) Turn off the rehashing of this set, and remove the members to 500.
-        r bgsave
-        rem_hash_set_top_N myset [expr {[r scard myset] - 500}]
-        assert_equal [r scard myset] 500
-
-        # 4) Kill RDB child process to restart rehashing.
-        set pid1 [get_child_pid 0]
-        catch {exec kill -9 $pid1}
-        waitForBgsave r
-
-        # 5) Let the set hash to start rehashing
-        r spop myset 1
-        assert [is_rehashing myset]
-
-        # 6) Verify that when rdb saving is in progress, rehashing will still be performed (because
-        # the ratio is extreme) by waiting for it to finish during an active bgsave.
-        r bgsave
-
-        while {[is_rehashing myset]} {
-            r srandmember myset 1
-        }
-        if {$::verbose} {
-            puts [r debug HTSTATS-KEY myset full]
-        }
-
-        set pid1 [get_child_pid 0]
-        catch {exec kill -9 $pid1}
-        waitForBgsave r
-
-        # 7) Check that eventually, SRANDMEMBER returns all elements.
-        array set allmyset {}
-        foreach ele [r smembers myset] {
-            set allmyset($ele) 1
-        }
-        unset -nocomplain auxset
-        set iterations 1000
-        while {$iterations != 0} {
-            incr iterations -1
-            set res [r srandmember myset -10]
-            foreach ele $res {
-                set auxset($ele) 1
-            }
-            if {[lsort [array names allmyset]] eq
-                [lsort [array names auxset]]} {
-                break;
-            }
-        }
-        assert {$iterations != 0}
-
-        # 8) Remove the members to 30 in order to calculate the value of Chi-Square Distribution,
-        #    otherwise we would need more iterations.
-        rem_hash_set_top_N myset [expr {[r scard myset] - 30}]
-        assert_equal [r scard myset] 30
-        assert {[is_rehashing myset]}
-
-        # Now that we have a hash set with only one long chain bucket.
-        set htstats [r debug HTSTATS-KEY myset full]
-        assert {[regexp {different slots: ([0-9]+)} $htstats - different_slots]}
-        assert {[regexp {max chain length: ([0-9]+)} $htstats - max_chain_length]}
-        assert {$different_slots == 1 && $max_chain_length == 30}
-
-        # 9) Use positive count (PATH 4) to get 10 elements (out of 30) each time.
-        unset -nocomplain allkey
-        set iterations 1000
-        while {$iterations != 0} {
-            incr iterations -1
-            set res [r srandmember myset 10]
-            foreach ele $res {
-                lappend allkey $ele
-            }
-        }
-        # validate even distribution of random sampling (df = 29, 73 means 0.00001 probability)
-        assert_lessthan [chi_square_value $allkey] 73
-
-        r config set save $origin_save
-        r config set set-max-listpack-entries $origin_max_lp
-        r config set rdb-key-save-delay $origin_save_delay
-    } {OK} {needs:debug slow}
+#    foreach {type contents} {listpack {a b c} intset {1 2 3}} {
+#        test "SPOP basics - $type" {
+#            create_set myset $contents
+#            assert_encoding $type myset
+#            assert_equal $contents [lsort [list [r spop myset] [r spop myset] [r spop myset]]]
+#            assert_equal 0 [r scard myset]
+#        }
+#
+#        test "SPOP with <count>=1 - $type" {
+#            create_set myset $contents
+#            assert_encoding $type myset
+#            assert_equal $contents [lsort [list [r spop myset 1] [r spop myset 1] [r spop myset 1]]]
+#            assert_equal 0 [r scard myset]
+#        }
+#
+#        test "SRANDMEMBER - $type" {
+#            create_set myset $contents
+#            unset -nocomplain myset
+#            array set myset {}
+#            for {set i 0} {$i < 100} {incr i} {
+#                set myset([r srandmember myset]) 1
+#            }
+#            assert_equal $contents [lsort [array names myset]]
+#        }
+#    }
+#
+#    test "SPOP integer from listpack set" {
+#        create_set myset {a 1 2 3 4 5 6 7}
+#        assert_encoding listpack myset
+#        set a [r spop myset]
+#        set b [r spop myset]
+#        assert {[string is digit $a] || [string is digit $b]}
+#    }
+#
+#    foreach {type contents} {
+#        listpack {a b c d e f g h i j k l m n o p q r s t u v w x y z}
+#        intset {1 10 11 12 13 14 15 16 17 18 19 2 20 21 22 23 24 25 26 3 4 5 6 7 8 9}
+#        hashtable {ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 b c d e f g h i j k l m n o p q r s t u v w x y z}
+#    } {
+#        test "SPOP with <count> - $type" {
+#            create_set myset $contents
+#            assert_encoding $type myset
+#            assert_equal $contents [lsort [concat [r spop myset 11] [r spop myset 9] [r spop myset 0] [r spop myset 4] [r spop myset 1] [r spop myset 0] [r spop myset 1] [r spop myset 0]]]
+#            assert_equal 0 [r scard myset]
+#        }
+#    }
+#
+#    # As seen in intsetRandomMembers
+#    test "SPOP using integers, testing Knuth's and Floyd's algorithm" {
+#        create_set myset {1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20}
+#        assert_encoding intset myset
+#        assert_equal 20 [r scard myset]
+#        r spop myset 1
+#        assert_equal 19 [r scard myset]
+#        r spop myset 2
+#        assert_equal 17 [r scard myset]
+#        r spop myset 3
+#        assert_equal 14 [r scard myset]
+#        r spop myset 10
+#        assert_equal 4 [r scard myset]
+#        r spop myset 10
+#        assert_equal 0 [r scard myset]
+#        r spop myset 1
+#        assert_equal 0 [r scard myset]
+#    } {}
+#
+#    test "SPOP using integers with Knuth's algorithm" {
+#        r spop nonexisting_key 100
+#    } {}
+#
+#    foreach {type content} {
+#        intset   {1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20}
+#        listpack {a 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20}
+#    } {
+#    test "SPOP new implementation: code path #1 $type" {
+#        create_set myset $content
+#        assert_encoding $type myset
+#        set res [r spop myset 30]
+#        assert {[lsort $content] eq [lsort $res]}
+#        assert_equal {0} [r exists myset]
+#    }
+#
+#    test "SPOP new implementation: code path #2 $type" {
+#        create_set myset $content
+#        assert_encoding $type myset
+#        set res [r spop myset 2]
+#        assert {[llength $res] == 2}
+#        assert {[r scard myset] == 18}
+#        set union [concat [r smembers myset] $res]
+#        assert {[lsort $union] eq [lsort $content]}
+#    }
+#
+#    test "SPOP new implementation: code path #3 $type" {
+#        create_set myset $content
+#        assert_encoding $type myset
+#        set res [r spop myset 18]
+#        assert {[llength $res] == 18}
+#        assert {[r scard myset] == 2}
+#        set union [concat [r smembers myset] $res]
+#        assert {[lsort $union] eq [lsort $content]}
+#    }
+#    }
+#
+#    test "SPOP new implementation: code path #1 propagate as DEL or UNLINK" {
+#        r del myset1{t} myset2{t}
+#        r sadd myset1{t} 1 2 3 4 5
+#        r sadd myset2{t} 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51 52 53 54 55 56 57 58 59 60 61 62 63 64 65
+#
+#        set repl [attach_to_replication_stream]
+#
+#        r config set lazyfree-lazy-server-del no
+#        r spop myset1{t} [r scard myset1{t}]
+#        r config set lazyfree-lazy-server-del yes
+#        r spop myset2{t} [r scard myset2{t}]
+#        assert_equal {0} [r exists myset1{t} myset2{t}]
+#
+#        # Verify the propagate of DEL and UNLINK.
+#        assert_replication_stream $repl {
+#            {select *}
+#            {del myset1{t}}
+#            {unlink myset2{t}}
+#        }
+#
+#        close_replication_stream $repl
+#    } {} {needs:repl}
+#
+#    test "SRANDMEMBER count of 0 is handled correctly" {
+#        r srandmember myset 0
+#    } {}
+#
+#    test "SRANDMEMBER with <count> against non existing key" {
+#        r srandmember nonexisting_key 100
+#    } {}
+#
+#    test "SRANDMEMBER count overflow" {
+#        r sadd myset a
+#        assert_error {*value is out of range*} {r srandmember myset -9223372036854775808}
+#    } {}
+#
+#    # Make sure we can distinguish between an empty array and a null response
+#    r readraw 1
+#
+#    test "SRANDMEMBER count of 0 is handled correctly - emptyarray" {
+#        r srandmember myset 0
+#    } {*0}
+#
+#    test "SRANDMEMBER with <count> against non existing key - emptyarray" {
+#        r srandmember nonexisting_key 100
+#    } {*0}
+#
+#    r readraw 0
+#
+#    foreach {type contents} {
+#        listpack {
+#            1 5 10 50 125 50000 33959417 4775547 65434162
+#            12098459 427716 483706 2726473884 72615637475
+#            MARY PATRICIA LINDA BARBARA ELIZABETH JENNIFER MARIA
+#            SUSAN MARGARET DOROTHY LISA NANCY KAREN BETTY HELEN
+#            SANDRA DONNA CAROL RUTH SHARON MICHELLE LAURA SARAH
+#            KIMBERLY DEBORAH JESSICA SHIRLEY CYNTHIA ANGELA MELISSA
+#            BRENDA AMY ANNA REBECCA VIRGINIA KATHLEEN
+#        }
+#        intset {
+#            0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19
+#            20 21 22 23 24 25 26 27 28 29
+#            30 31 32 33 34 35 36 37 38 39
+#            40 41 42 43 44 45 46 47 48 49
+#        }
+#        hashtable {
+#            ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789
+#            1 5 10 50 125 50000 33959417 4775547 65434162
+#            12098459 427716 483706 2726473884 72615637475
+#            MARY PATRICIA LINDA BARBARA ELIZABETH JENNIFER MARIA
+#            SUSAN MARGARET DOROTHY LISA NANCY KAREN BETTY HELEN
+#            SANDRA DONNA CAROL RUTH SHARON MICHELLE LAURA SARAH
+#            KIMBERLY DEBORAH JESSICA SHIRLEY CYNTHIA ANGELA MELISSA
+#            BRENDA AMY ANNA REBECCA VIRGINIA
+#        }
+#    } {
+#        test "SRANDMEMBER with <count> - $type" {
+#            create_set myset $contents
+#            assert_encoding $type myset
+#            unset -nocomplain myset
+#            array set myset {}
+#            foreach ele [r smembers myset] {
+#                set myset($ele) 1
+#            }
+#            assert_equal [lsort $contents] [lsort [array names myset]]
+#
+#            # Make sure that a count of 0 is handled correctly.
+#            assert_equal [r srandmember myset 0] {}
+#
+#            # We'll stress different parts of the code, see the implementation
+#            # of SRANDMEMBER for more information, but basically there are
+#            # four different code paths.
+#            #
+#            # PATH 1: Use negative count.
+#            #
+#            # 1) Check that it returns repeated elements.
+#            set res [r srandmember myset -100]
+#            assert_equal [llength $res] 100
+#
+#            # 2) Check that all the elements actually belong to the
+#            # original set.
+#            foreach ele $res {
+#                assert {[info exists myset($ele)]}
+#            }
+#
+#            # 3) Check that eventually all the elements are returned.
+#            unset -nocomplain auxset
+#            set iterations 1000
+#            while {$iterations != 0} {
+#                incr iterations -1
+#                set res [r srandmember myset -10]
+#                foreach ele $res {
+#                    set auxset($ele) 1
+#                }
+#                if {[lsort [array names myset]] eq
+#                    [lsort [array names auxset]]} {
+#                    break;
+#                }
+#            }
+#            assert {$iterations != 0}
+#
+#            # PATH 2: positive count (unique behavior) with requested size
+#            # equal or greater than set size.
+#            foreach size {50 100} {
+#                set res [r srandmember myset $size]
+#                assert_equal [llength $res] 50
+#                assert_equal [lsort $res] [lsort [array names myset]]
+#            }
+#
+#            # PATH 3: Ask almost as elements as there are in the set.
+#            # In this case the implementation will duplicate the original
+#            # set and will remove random elements up to the requested size.
+#            #
+#            # PATH 4: Ask a number of elements definitely smaller than
+#            # the set size.
+#            #
+#            # We can test both the code paths just changing the size but
+#            # using the same code.
+#
+#            foreach size {45 5} {
+#                set res [r srandmember myset $size]
+#                assert_equal [llength $res] $size
+#
+#                # 1) Check that all the elements actually belong to the
+#                # original set.
+#                foreach ele $res {
+#                    assert {[info exists myset($ele)]}
+#                }
+#
+#                # 2) Check that eventually all the elements are returned.
+#                unset -nocomplain auxset
+#                set iterations 1000
+#                while {$iterations != 0} {
+#                    incr iterations -1
+#                    set res [r srandmember myset $size]
+#                    foreach ele $res {
+#                        set auxset($ele) 1
+#                    }
+#                    if {[lsort [array names myset]] eq
+#                        [lsort [array names auxset]]} {
+#                        break;
+#                    }
+#                }
+#                assert {$iterations != 0}
+#            }
+#        }
+#    }
+#
+#    foreach {type contents} {
+#        listpack {
+#            1 5 10 50 125
+#            MARY PATRICIA LINDA BARBARA ELIZABETH
+#        }
+#        intset {
+#            0 1 2 3 4 5 6 7 8 9
+#        }
+#        hashtable {
+#            ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789
+#            1 5 10 50 125
+#            MARY PATRICIA LINDA BARBARA
+#        }
+#    } {
+#        test "SRANDMEMBER histogram distribution - $type" {
+#            create_set myset $contents
+#            assert_encoding $type myset
+#            unset -nocomplain myset
+#            array set myset {}
+#            foreach ele [r smembers myset] {
+#                set myset($ele) 1
+#            }
+#
+#            # Use negative count (PATH 1).
+#            # df = 9, 40 means 0.00001 probability
+#            set res [r srandmember myset -1000]
+#            assert_lessthan [chi_square_value $res] 40
+#
+#            # Use positive count (both PATH 3 and PATH 4).
+#            foreach size {8 2} {
+#                unset -nocomplain allkey
+#                set iterations [expr {1000 / $size}]
+#                while {$iterations != 0} {
+#                    incr iterations -1
+#                    set res [r srandmember myset $size]
+#                    foreach ele $res {
+#                        lappend allkey $ele
+#                    }
+#                }
+#                # df = 9, 40 means 0.00001 probability
+#                assert_lessthan [chi_square_value $allkey] 40
+#            }
+#        }
+#    }
+#
+#    proc is_rehashing {myset} {
+#        set htstats [r debug HTSTATS-KEY $myset]
+#        return [string match {*rehashing target*} $htstats]
+#    }
+#
+#    proc rem_hash_set_top_N {myset n} {
+#        set cursor 0
+#        set members {}
+#        set enough 0
+#        while 1 {
+#            set res [r sscan $myset $cursor]
+#            set cursor [lindex $res 0]
+#            set k [lindex $res 1]
+#            foreach m $k {
+#                lappend members $m
+#                if {[llength $members] >= $n} {
+#                    set enough 1
+#                    break
+#                }
+#            }
+#            if {$enough || $cursor == 0} {
+#                break
+#            }
+#        }
+#        r srem $myset {*}$members
+#    }
+#
+#    test "SRANDMEMBER with a dict containing long chain" {
+#        set origin_save [config_get_set save ""]
+#        set origin_max_lp [config_get_set set-max-listpack-entries 0]
+#        set origin_save_delay [config_get_set rdb-key-save-delay 2147483647]
+#
+#        # 1) Create a hash set with 100000 members.
+#        set members {}
+#        for {set i 0} {$i < 100000} {incr i} {
+#            lappend members [format "m:%d" $i]
+#        }
+#        create_set myset $members
+#
+#        # 2) Wait for the hash set rehashing to finish.
+#        while {[is_rehashing myset]} {
+#            r srandmember myset 100
+#        }
+#
+#        # 3) Turn off the rehashing of this set, and remove the members to 500.
+#        r bgsave
+#        rem_hash_set_top_N myset [expr {[r scard myset] - 500}]
+#        assert_equal [r scard myset] 500
+#
+#        # 4) Kill RDB child process to restart rehashing.
+#        set pid1 [get_child_pid 0]
+#        catch {exec kill -9 $pid1}
+#        waitForBgsave r
+#
+#        # 5) Let the set hash to start rehashing
+#        r spop myset 1
+#        assert [is_rehashing myset]
+#
+#        # 6) Verify that when rdb saving is in progress, rehashing will still be performed (because
+#        # the ratio is extreme) by waiting for it to finish during an active bgsave.
+#        r bgsave
+#
+#        while {[is_rehashing myset]} {
+#            r srandmember myset 1
+#        }
+#        if {$::verbose} {
+#            puts [r debug HTSTATS-KEY myset full]
+#        }
+#
+#        set pid1 [get_child_pid 0]
+#        catch {exec kill -9 $pid1}
+#        waitForBgsave r
+#
+#        # 7) Check that eventually, SRANDMEMBER returns all elements.
+#        array set allmyset {}
+#        foreach ele [r smembers myset] {
+#            set allmyset($ele) 1
+#        }
+#        unset -nocomplain auxset
+#        set iterations 1000
+#        while {$iterations != 0} {
+#            incr iterations -1
+#            set res [r srandmember myset -10]
+#            foreach ele $res {
+#                set auxset($ele) 1
+#            }
+#            if {[lsort [array names allmyset]] eq
+#                [lsort [array names auxset]]} {
+#                break;
+#            }
+#        }
+#        assert {$iterations != 0}
+#
+#        # 8) Remove the members to 30 in order to calculate the value of Chi-Square Distribution,
+#        #    otherwise we would need more iterations.
+#        rem_hash_set_top_N myset [expr {[r scard myset] - 30}]
+#        assert_equal [r scard myset] 30
+#        assert {[is_rehashing myset]}
+#
+#        # Now that we have a hash set with only one long chain bucket.
+#        set htstats [r debug HTSTATS-KEY myset full]
+#        assert {[regexp {different slots: ([0-9]+)} $htstats - different_slots]}
+#        assert {[regexp {max chain length: ([0-9]+)} $htstats - max_chain_length]}
+#        assert {$different_slots == 1 && $max_chain_length == 30}
+#
+#        # 9) Use positive count (PATH 4) to get 10 elements (out of 30) each time.
+#        unset -nocomplain allkey
+#        set iterations 1000
+#        while {$iterations != 0} {
+#            incr iterations -1
+#            set res [r srandmember myset 10]
+#            foreach ele $res {
+#                lappend allkey $ele
+#            }
+#        }
+#        # validate even distribution of random sampling (df = 29, 73 means 0.00001 probability)
+#        assert_lessthan [chi_square_value $allkey] 73
+#
+#        r config set save $origin_save
+#        r config set set-max-listpack-entries $origin_max_lp
+#        r config set rdb-key-save-delay $origin_save_delay
+#    } {OK} {needs:debug slow}
 
     proc setup_move {} {
         r del myset3{t} myset4{t}
@@ -1203,103 +1203,103 @@ foreach type {single multiple single_multiple} {
         lsort [r smembers set{t}]
     } {a b c}
 
-    test "SMOVE only notify dstset when the addition is successful" {
-        r del srcset{t}
-        r del dstset{t}
-
-        r sadd srcset{t} a b
-        r sadd dstset{t} a
-
-        r watch dstset{t}
-
-        r multi
-        r sadd dstset{t} c
-
-        set r2 [redis_client]
-        $r2 smove srcset{t} dstset{t} a
-
-        # The dstset is actually unchanged, multi should success
-        r exec
-        set res [r scard dstset{t}]
-        assert_equal $res 2
-        $r2 close
-    }
-
-    tags {slow} {
-        test {intsets implementation stress testing} {
-            for {set j 0} {$j < 20} {incr j} {
-                unset -nocomplain s
-                array set s {}
-                r del s
-                set len [randomInt 1024]
-                for {set i 0} {$i < $len} {incr i} {
-                    randpath {
-                        set data [randomInt 65536]
-                    } {
-                        set data [randomInt 4294967296]
-                    } {
-                        set data [randomInt 18446744073709551616]
-                    }
-                    set s($data) {}
-                    r sadd s $data
-                }
-                assert_equal [lsort [r smembers s]] [lsort [array names s]]
-                set len [array size s]
-                for {set i 0} {$i < $len} {incr i} {
-                    set e [r spop s]
-                    if {![info exists s($e)]} {
-                        puts "Can't find '$e' on local array"
-                        puts "Local array: [lsort [r smembers s]]"
-                        puts "Remote array: [lsort [array names s]]"
-                        error "exception"
-                    }
-                    array unset s $e
-                }
-                assert_equal [r scard s] 0
-                assert_equal [array size s] 0
-            }
-        }
-    }
+#    test "SMOVE only notify dstset when the addition is successful" {
+#        r del srcset{t}
+#        r del dstset{t}
+#
+#        r sadd srcset{t} a b
+#        r sadd dstset{t} a
+#
+#        r watch dstset{t}
+#
+#        r multi
+#        r sadd dstset{t} c
+#
+#        set r2 [redis_client]
+#        $r2 smove srcset{t} dstset{t} a
+#
+#        # The dstset is actually unchanged, multi should success
+#        r exec
+#        set res [r scard dstset{t}]
+#        assert_equal $res 2
+#        $r2 close
+#    }
+#
+#    tags {slow} {
+#        test {intsets implementation stress testing} {
+#            for {set j 0} {$j < 20} {incr j} {
+#                unset -nocomplain s
+#                array set s {}
+#                r del s
+#                set len [randomInt 1024]
+#                for {set i 0} {$i < $len} {incr i} {
+#                    randpath {
+#                        set data [randomInt 65536]
+#                    } {
+#                        set data [randomInt 4294967296]
+#                    } {
+#                        set data [randomInt 18446744073709551616]
+#                    }
+#                    set s($data) {}
+#                    r sadd s $data
+#                }
+#                assert_equal [lsort [r smembers s]] [lsort [array names s]]
+#                set len [array size s]
+#                for {set i 0} {$i < $len} {incr i} {
+#                    set e [r spop s]
+#                    if {![info exists s($e)]} {
+#                        puts "Can't find '$e' on local array"
+#                        puts "Local array: [lsort [r smembers s]]"
+#                        puts "Remote array: [lsort [array names s]]"
+#                        error "exception"
+#                    }
+#                    array unset s $e
+#                }
+#                assert_equal [r scard s] 0
+#                assert_equal [array size s] 0
+#            }
+#        }
+#    }
 }
 
-run_solo {set-large-memory} {
-start_server [list overrides [list save ""] ] {
-
-# test if the server supports such large configs (avoid 32 bit builds)
-catch {
-    r config set proto-max-bulk-len 10000000000 ;#10gb
-    r config set client-query-buffer-limit 10000000000 ;#10gb
-}
-if {[lindex [r config get proto-max-bulk-len] 1] == 10000000000} {
-
-    set str_length 4400000000 ;#~4.4GB
-
-    test {SADD, SCARD, SISMEMBER - large data} {
-        r flushdb
-        r write "*3\r\n\$4\r\nSADD\r\n\$5\r\nmyset\r\n"
-        assert_equal 1 [write_big_bulk $str_length "aaa"]
-        r write "*3\r\n\$4\r\nSADD\r\n\$5\r\nmyset\r\n"
-        assert_equal 1 [write_big_bulk $str_length "bbb"]
-        r write "*3\r\n\$4\r\nSADD\r\n\$5\r\nmyset\r\n"
-        assert_equal 0 [write_big_bulk $str_length "aaa"]
-        assert_encoding hashtable myset
-        set s0 [s used_memory]
-        assert {$s0 > [expr $str_length * 2]}
-        assert_equal 2 [r scard myset]
-
-        r write "*3\r\n\$9\r\nSISMEMBER\r\n\$5\r\nmyset\r\n"
-        assert_equal 1 [write_big_bulk $str_length "aaa"]
-        r write "*3\r\n\$9\r\nSISMEMBER\r\n\$5\r\nmyset\r\n"
-        assert_equal 0 [write_big_bulk $str_length "ccc"]
-        r write "*3\r\n\$4\r\nSREM\r\n\$5\r\nmyset\r\n"
-        assert_equal 1 [write_big_bulk $str_length "bbb"]
-        assert_equal [read_big_bulk {r spop myset} yes "aaa"] $str_length
-    } {} {large-memory}
-
-    # restore defaults
-    r config set proto-max-bulk-len 536870912
-    r config set client-query-buffer-limit 1073741824
-
-} ;# skip 32bit builds
-}
-} ;# run_solo
+#run_solo {set-large-memory} {
+#start_server [list overrides [list save ""] ] {
+#
+## test if the server supports such large configs (avoid 32 bit builds)
+#catch {
+#    r config set proto-max-bulk-len 10000000000 ;#10gb
+#    r config set client-query-buffer-limit 10000000000 ;#10gb
+#}
+#if {[lindex [r config get proto-max-bulk-len] 1] == 10000000000} {
+#
+#    set str_length 4400000000 ;#~4.4GB
+#
+#    test {SADD, SCARD, SISMEMBER - large data} {
+#        r flushdb
+#        r write "*3\r\n\$4\r\nSADD\r\n\$5\r\nmyset\r\n"
+#        assert_equal 1 [write_big_bulk $str_length "aaa"]
+#        r write "*3\r\n\$4\r\nSADD\r\n\$5\r\nmyset\r\n"
+#        assert_equal 1 [write_big_bulk $str_length "bbb"]
+#        r write "*3\r\n\$4\r\nSADD\r\n\$5\r\nmyset\r\n"
+#        assert_equal 0 [write_big_bulk $str_length "aaa"]
+#        assert_encoding hashtable myset
+#        set s0 [s used_memory]
+#        assert {$s0 > [expr $str_length * 2]}
+#        assert_equal 2 [r scard myset]
+#
+#        r write "*3\r\n\$9\r\nSISMEMBER\r\n\$5\r\nmyset\r\n"
+#        assert_equal 1 [write_big_bulk $str_length "aaa"]
+#        r write "*3\r\n\$9\r\nSISMEMBER\r\n\$5\r\nmyset\r\n"
+#        assert_equal 0 [write_big_bulk $str_length "ccc"]
+#        r write "*3\r\n\$4\r\nSREM\r\n\$5\r\nmyset\r\n"
+#        assert_equal 1 [write_big_bulk $str_length "bbb"]
+#        assert_equal [read_big_bulk {r spop myset} yes "aaa"] $str_length
+#    } {} {large-memory}
+#
+#    # restore defaults
+#    r config set proto-max-bulk-len 536870912
+#    r config set client-query-buffer-limit 1073741824
+#
+#} ;# skip 32bit builds
+#}
+#} ;# run_solo

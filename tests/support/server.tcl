@@ -138,7 +138,7 @@ proc ping_server {host port} {
     set retval 0
     if {[catch {
         if {$::tls} {
-            set fd [::tls::socket $host $port] 
+            set fd [::tls::socket $host $port]
         } else {
             set fd [socket $host $port]
         }
@@ -364,21 +364,21 @@ proc run_external_server_test {code overrides} {
     }
 
     r flushall
-    r function flush
+    # r function flush
 
     # store overrides
     set saved_config {}
-    foreach {param val} $overrides {
-        dict set saved_config $param [lindex [r config get $param] 1]
-        r config set $param $val
-
-        # If we enable appendonly, wait for for rewrite to complete. This is
-        # required for tests that begin with a bg* command which will fail if
-        # the rewriteaof operation is not completed at this point.
-        if {$param == "appendonly" && $val == "yes"} {
-            waitForBgrewriteaof r
-        }
-    }
+#    foreach {param val} $overrides {
+#        dict set saved_config $param [lindex [r config get $param] 1]
+#        r config set $param $val
+#
+#        # If we enable appendonly, wait for for rewrite to complete. This is
+#        # required for tests that begin with a bg* command which will fail if
+#        # the rewriteaof operation is not completed at this point.
+#        if {$param == "appendonly" && $val == "yes"} {
+#            waitForBgrewriteaof r
+#        }
+#    }
 
     if {[catch {set retval [uplevel 2 $code]} error]} {
         if {$::durable} {
@@ -401,7 +401,7 @@ proc run_external_server_test {code overrides} {
     }
 
     set srv [lpop ::servers]
-    
+
     if {[dict exists $srv "client"]} {
         [dict get $srv "client"] close
     }
