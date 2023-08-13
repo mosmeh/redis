@@ -23,9 +23,10 @@ set ::all_tests {
     unit/type/list-3
     unit/type/set
     unit/type/hash
-    unit/multi
     unit/other
+    unit/multi
     unit/bitops
+    unit/hyperloglog
 }
 #    unit/printver
 #    unit/dump

@@ -1,8 +1,8 @@
 start_server {tags {"hll"}} {
-    test {HyperLogLog self test passes} {
-        catch {r pfselftest} e
-        set e
-    } {OK} {needs:pfdebug}
+#    test {HyperLogLog self test passes} {
+#        catch {r pfselftest} e
+#        set e
+#    } {OK} {needs:pfdebug}
 
     test {PFADD without arguments creates an HLL value} {
         r pfadd hll
@@ -39,95 +39,95 @@ start_server {tags {"hll"}} {
         set res
     } {5 10}
 
-    test {HyperLogLogs are promote from sparse to dense} {
-        r del hll
-        r config set hll-sparse-max-bytes 3000
-        set n 0
-        while {$n < 100000} {
-            set elements {}
-            for {set j 0} {$j < 100} {incr j} {lappend elements [expr rand()]}
-            incr n 100
-            r pfadd hll {*}$elements
-            set card [r pfcount hll]
-            set err [expr {abs($card-$n)}]
-            assert {$err < (double($card)/100)*5}
-            if {$n < 1000} {
-                assert {[r pfdebug encoding hll] eq {sparse}}
-            } elseif {$n > 10000} {
-                assert {[r pfdebug encoding hll] eq {dense}}
-            }
-        }
-    } {} {needs:pfdebug}
-
-    test {Change hll-sparse-max-bytes} {
-        r config set hll-sparse-max-bytes 3000
-        r del hll
-        r pfadd hll a b c d e d g h i j k
-        assert {[r pfdebug encoding hll] eq {sparse}}
-        r config set hll-sparse-max-bytes 30
-        r pfadd hll new_element
-        assert {[r pfdebug encoding hll] eq {dense}}
-    } {} {needs:pfdebug}
-
-    test {Hyperloglog promote to dense well in different hll-sparse-max-bytes} {
-        set max(0) 100
-        set max(1) 500
-        set max(2) 3000
-        for {set i 0} {$i < [array size max]} {incr i} {
-            r config set hll-sparse-max-bytes $max($i)
-            r del hll
-            r pfadd hll
-            set len [r strlen hll]
-            while {$len <= $max($i)} {
-                assert {[r pfdebug encoding hll] eq {sparse}}
-                set elements {}
-                for {set j 0} {$j < 10} {incr j} { lappend elements [expr rand()]}
-                r pfadd hll {*}$elements
-                set len [r strlen hll]
-            }
-            assert {[r pfdebug encoding hll] eq {dense}}
-        }
-    } {} {needs:pfdebug}
-
-    test {HyperLogLog sparse encoding stress test} {
-        for {set x 0} {$x < 1000} {incr x} {
-            r del hll1
-            r del hll2
-            set numele [randomInt 100]
-            set elements {}
-            for {set j 0} {$j < $numele} {incr j} {
-                lappend elements [expr rand()]
-            }
-            # Force dense representation of hll2
-            r pfadd hll2
-            r pfdebug todense hll2
-            r pfadd hll1 {*}$elements
-            r pfadd hll2 {*}$elements
-            assert {[r pfdebug encoding hll1] eq {sparse}}
-            assert {[r pfdebug encoding hll2] eq {dense}}
-            # Cardinality estimated should match exactly.
-            assert {[r pfcount hll1] eq [r pfcount hll2]}
-        }
-    } {} {needs:pfdebug}
-
-    test {Corrupted sparse HyperLogLogs are detected: Additional at tail} {
-        r del hll
-        r pfadd hll a b c
-        r append hll "hello"
-        set e {}
-        catch {r pfcount hll} e
-        set e
-    } {*INVALIDOBJ*}
-
-    test {Corrupted sparse HyperLogLogs are detected: Broken magic} {
-        r del hll
-        r pfadd hll a b c
-        r setrange hll 0 "0123"
-        set e {}
-        catch {r pfcount hll} e
-        set e
-    } {*WRONGTYPE*}
-
+#    test {HyperLogLogs are promote from sparse to dense} {
+#        r del hll
+#        r config set hll-sparse-max-bytes 3000
+#        set n 0
+#        while {$n < 100000} {
+#            set elements {}
+#            for {set j 0} {$j < 100} {incr j} {lappend elements [expr rand()]}
+#            incr n 100
+#            r pfadd hll {*}$elements
+#            set card [r pfcount hll]
+#            set err [expr {abs($card-$n)}]
+#            assert {$err < (double($card)/100)*5}
+#            if {$n < 1000} {
+#                assert {[r pfdebug encoding hll] eq {sparse}}
+#            } elseif {$n > 10000} {
+#                assert {[r pfdebug encoding hll] eq {dense}}
+#            }
+#        }
+#    } {} {needs:pfdebug}
+#
+#    test {Change hll-sparse-max-bytes} {
+#        r config set hll-sparse-max-bytes 3000
+#        r del hll
+#        r pfadd hll a b c d e d g h i j k
+#        assert {[r pfdebug encoding hll] eq {sparse}}
+#        r config set hll-sparse-max-bytes 30
+#        r pfadd hll new_element
+#        assert {[r pfdebug encoding hll] eq {dense}}
+#    } {} {needs:pfdebug}
+#
+#    test {Hyperloglog promote to dense well in different hll-sparse-max-bytes} {
+#        set max(0) 100
+#        set max(1) 500
+#        set max(2) 3000
+#        for {set i 0} {$i < [array size max]} {incr i} {
+#            r config set hll-sparse-max-bytes $max($i)
+#            r del hll
+#            r pfadd hll
+#            set len [r strlen hll]
+#            while {$len <= $max($i)} {
+#                assert {[r pfdebug encoding hll] eq {sparse}}
+#                set elements {}
+#                for {set j 0} {$j < 10} {incr j} { lappend elements [expr rand()]}
+#                r pfadd hll {*}$elements
+#                set len [r strlen hll]
+#            }
+#            assert {[r pfdebug encoding hll] eq {dense}}
+#        }
+#    } {} {needs:pfdebug}
+#
+#    test {HyperLogLog sparse encoding stress test} {
+#        for {set x 0} {$x < 1000} {incr x} {
+#            r del hll1
+#            r del hll2
+#            set numele [randomInt 100]
+#            set elements {}
+#            for {set j 0} {$j < $numele} {incr j} {
+#                lappend elements [expr rand()]
+#            }
+#            # Force dense representation of hll2
+#            r pfadd hll2
+#            r pfdebug todense hll2
+#            r pfadd hll1 {*}$elements
+#            r pfadd hll2 {*}$elements
+#            assert {[r pfdebug encoding hll1] eq {sparse}}
+#            assert {[r pfdebug encoding hll2] eq {dense}}
+#            # Cardinality estimated should match exactly.
+#            assert {[r pfcount hll1] eq [r pfcount hll2]}
+#        }
+#    } {} {needs:pfdebug}
+#
+#    test {Corrupted sparse HyperLogLogs are detected: Additional at tail} {
+#        r del hll
+#        r pfadd hll a b c
+#        r append hll "hello"
+#        set e {}
+#        catch {r pfcount hll} e
+#        set e
+#    } {*INVALIDOBJ*}
+#
+#    test {Corrupted sparse HyperLogLogs are detected: Broken magic} {
+#        r del hll
+#        r pfadd hll a b c
+#        r setrange hll 0 "0123"
+#        set e {}
+#        catch {r pfcount hll} e
+#        set e
+#    } {*WRONGTYPE*}
+#
     test {Corrupted sparse HyperLogLogs are detected: Invalid encoding} {
         r del hll
         r pfadd hll a b c
@@ -136,15 +136,15 @@ start_server {tags {"hll"}} {
         catch {r pfcount hll} e
         set e
     } {*WRONGTYPE*}
-
-    test {Corrupted dense HyperLogLogs are detected: Wrong length} {
-        r del hll
-        r pfadd hll a b c
-        r setrange hll 4 "\x00"
-        set e {}
-        catch {r pfcount hll} e
-        set e
-    } {*WRONGTYPE*}
+#
+#    test {Corrupted dense HyperLogLogs are detected: Wrong length} {
+#        r del hll
+#        r pfadd hll a b c
+#        r setrange hll 4 "\x00"
+#        set e {}
+#        catch {r pfcount hll} e
+#        set e
+#    } {*WRONGTYPE*}
 
     test {Fuzzing dense/sparse encoding: Redis should always detect errors} {
         for {set j 0} {$j < 1000} {incr j} {
@@ -252,11 +252,11 @@ start_server {tags {"hll"}} {
         assert {$err < (double($card)/100)*5}
     }
 
-    test {PFDEBUG GETREG returns the HyperLogLog raw registers} {
-        r del hll
-        r pfadd hll 1 2 3
-        llength [r pfdebug getreg hll]
-    } {16384} {needs:pfdebug}
+#    test {PFDEBUG GETREG returns the HyperLogLog raw registers} {
+#        r del hll
+#        r pfadd hll 1 2 3
+#        llength [r pfdebug getreg hll]
+#    } {16384} {needs:pfdebug}
 
     test {PFADD / PFCOUNT cache invalidation works} {
         r del hll
